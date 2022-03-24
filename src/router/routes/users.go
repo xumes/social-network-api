@@ -1,46 +1,39 @@
 package routes
 
-import "net/http"
+import (
+	"api/src/router/controllers"
+	"net/http"
+)
 
 var usersRoutes = []Route{
 	{
-		Uri:    "/users",
-		Method: http.MethodPost,
-		Function: func(w http.ResponseWriter, r *http.Request) {
-
-		},
+		Uri:            "/users",
+		Method:         http.MethodPost,
+		Function:       controllers.AddUser,
 		IsAuthRequired: false,
 	},
 	{
-		Uri:    "/users",
-		Method: http.MethodGet,
-		Function: func(w http.ResponseWriter, r *http.Request) {
-
-		},
+		Uri:            "/users",
+		Method:         http.MethodGet,
+		Function:       controllers.GetAllUsers,
 		IsAuthRequired: false,
 	},
 	{
-		Uri:    "/users/{userId}",
-		Method: http.MethodGet,
-		Function: func(w http.ResponseWriter, r *http.Request) {
-
-		},
+		Uri:            "/users/{userId}",
+		Method:         http.MethodGet,
+		Function:       controllers.GetUserById,
 		IsAuthRequired: false,
 	},
 	{
-		Uri:    "/users/{userId}",
-		Method: http.MethodPut,
-		Function: func(w http.ResponseWriter, r *http.Request) {
-
-		},
+		Uri:            "/users/{userId}",
+		Method:         http.MethodPut,
+		Function:       controllers.UpdateUserById,
 		IsAuthRequired: false,
 	},
 	{
-		Uri:    "/users/{userId}",
-		Method: http.MethodDelete,
-		Function: func(w http.ResponseWriter, r *http.Request) {
-
-		},
+		Uri:            "/users/{userId}",
+		Method:         http.MethodDelete,
+		Function:       controllers.RemoveUserById,
 		IsAuthRequired: false,
 	},
 }
