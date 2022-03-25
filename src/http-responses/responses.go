@@ -16,7 +16,7 @@ func JSON(w http.ResponseWriter, statusCode int, data interface{}) {
 
 func Error(w http.ResponseWriter, statusCode int, err error) {
 	JSON(w, statusCode, struct {
-		Error string `json:"erro"`
+		Error string `json:"error"`
 	}{
 		Error: err.Error(),
 	})
