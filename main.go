@@ -1,6 +1,7 @@
 package main
 
 import (
+	"api/src/config"
 	"api/src/router"
 	"fmt"
 	"log"
@@ -8,9 +9,12 @@ import (
 )
 
 func main() {
-	fmt.Println("Running the API")
+	config.Load()
+	fmt.Printf("Running the API at port: %d\n", config.Port)
+
+	fmt.Printf("DB Connection string: %s\n", config.DatabaseConnectionString)
 
 	appRouter := router.Generate()
 
-	log.Fatal(http.ListenAndServe(":5080", appRouter))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", config.Port), appRouter))
 }
