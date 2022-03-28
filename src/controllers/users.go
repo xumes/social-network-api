@@ -133,6 +133,23 @@ func UpdateUserById(w http.ResponseWriter, r *http.Request) {
 }
 
 func RemoveUserById(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(204)
-	w.Write([]byte("deleting an user by Id"))
+	params := mux.Vars(r)
+	userId, err := strconv.ParseUint(params["userId"], 10, 64)
+	if err != nil {
+		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
+	db, err := database.Connect()
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
+	repository := repositories.NewUserRepository(db)
+	if err = repository.DeleteById(userId); err != nil {
+		responses.Error(w, http.StatusNotFound, err)
+	}
+
+	responses.JSON(w, http.StatusNoContent, nil)
 }
