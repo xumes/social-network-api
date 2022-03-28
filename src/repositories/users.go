@@ -67,3 +67,28 @@ func (userRepository users) Find(nameOrNick string) ([]models.User, error) {
 
 	return users, nil
 }
+
+func (userRepository users) FindById(id uint64) (models.User, error) {
+	sql := "SELECT  name, nick, email, created_at FROM users WHERE  id = ?"
+	rows, err := userRepository.db.Query(sql, id)
+	if err != nil {
+		return models.User{}, err
+	}
+	defer rows.Close()
+
+	var user models.User
+
+	if rows.Next() {
+		if err = rows.Scan(
+			&user.Name,
+			&user.Nick,
+			&user.Email,
+			&user.CreatedAt,
+		); err != nil {
+			return models.User{}, err
+		}
+		user.Id = id
+	}
+
+	return user, nil
+}
