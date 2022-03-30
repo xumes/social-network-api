@@ -1,11 +1,13 @@
 package controllers
 
 import (
+	"api/src/auth"
 	"api/src/database"
 	responses "api/src/http-responses"
 	"api/src/models"
 	"api/src/repositories"
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -98,6 +100,18 @@ func UpdateUserById(w http.ResponseWriter, r *http.Request) {
 		responses.Error(w, http.StatusBadRequest, err)
 		return
 	}
+
+	tokenUserId, err := auth.ExtractUserId(r)
+	if err != nil {
+		responses.Error(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	if userId != tokenUserId {
+		responses.Error(w, http.StatusForbidden, errors.New("you can only edit your own user"))
+		return
+	}
+
 	requestBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		responses.Error(w, http.StatusUnprocessableEntity, err)

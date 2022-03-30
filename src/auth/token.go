@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -32,8 +33,7 @@ func ValidateToken(r *http.Request) error {
 		return nil
 	}
 
-	fmt.Println(token)
-	return errors.New("Invalid Token")
+	return errors.New("invalid Token")
 }
 
 func extractToken(r *http.Request) string {
@@ -48,8 +48,27 @@ func extractToken(r *http.Request) string {
 
 func getVerificationKey(token *jwt.Token) (interface{}, error) {
 	if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-		return nil, fmt.Errorf("Signature method unexpected %v", token.Header["alg"])
+		return nil, fmt.Errorf("signature method unexpected %v", token.Header["alg"])
 	}
 
 	return config.SecretKey, nil
+}
+
+func ExtractUserId(r *http.Request) (uint64, error) {
+	tokenString := extractToken(r)
+	token, err := jwt.Parse(tokenString, getVerificationKey)
+	if err != nil {
+		return 0, err
+	}
+
+	if permissions, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		userId, err := strconv.ParseUint(fmt.Sprintf("%.0f", permissions["userId"]), 10, 64)
+		if err != nil {
+			return 0, err
+		}
+
+		return userId, nil
+	}
+
+	return 0, errors.New("invalid Token")
 }
