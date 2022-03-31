@@ -174,6 +174,77 @@ func RemoveUserById(w http.ResponseWriter, r *http.Request) {
 	repository := repositories.NewUserRepository(db)
 	if err = repository.DeleteById(userId); err != nil {
 		responses.Error(w, http.StatusNotFound, err)
+		return
+	}
+
+	responses.JSON(w, http.StatusNoContent, nil)
+}
+
+func FollowUserById(w http.ResponseWriter, r *http.Request) {
+	followerId, err := auth.ExtractUserId(r)
+	if err != nil {
+		responses.Error(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	params := mux.Vars(r)
+	userId, err := strconv.ParseUint(params["userId"], 10, 64)
+	if err != nil {
+		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
+	if followerId == userId {
+		responses.Error(w, http.StatusForbidden, errors.New("you cannot follow yourself"))
+		return
+	}
+
+	db, err := database.Connect()
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
+
+	repository := repositories.NewUserRepository(db)
+	if err = repository.Follow(userId, followerId); err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	responses.JSON(w, http.StatusNoContent, nil)
+}
+
+func UnfollowUserById(w http.ResponseWriter, r *http.Request) {
+	followerId, err := auth.ExtractUserId(r)
+	if err != nil {
+		responses.Error(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	params := mux.Vars(r)
+	userId, err := strconv.ParseUint(params["userId"], 10, 64)
+	if err != nil {
+		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
+	if followerId == userId {
+		responses.Error(w, http.StatusForbidden, errors.New("you cannot unfollow yourself"))
+		return
+	}
+
+	db, err := database.Connect()
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
+
+	repository := repositories.NewUserRepository(db)
+	if err = repository.Unfollow(userId, followerId); err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
 	}
 
 	responses.JSON(w, http.StatusNoContent, nil)

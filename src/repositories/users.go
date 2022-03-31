@@ -141,3 +141,33 @@ func (userRepository users) DeleteById(id uint64) error {
 
 	return nil
 }
+
+func (userRepository users) Follow(userId, followerId uint64) error {
+	sql := "INSERT ignore INTO followers (user_id, follower_id) values (?, ?)"
+	statement, err := userRepository.db.Prepare(sql)
+	if err != nil {
+		return err
+	}
+	defer statement.Close()
+
+	if _, err = statement.Exec(userId, followerId); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (userRepository users) Unfollow(userId, followerId uint64) error {
+	sql := "DELETE FROM followers WHERE user_id = ? AND  follower_id =  ?"
+	statement, err := userRepository.db.Prepare(sql)
+	if err != nil {
+		return err
+	}
+	defer statement.Close()
+
+	if _, err = statement.Exec(userId, followerId); err != nil {
+		return err
+	}
+
+	return nil
+}
