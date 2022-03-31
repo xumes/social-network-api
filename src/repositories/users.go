@@ -171,3 +171,67 @@ func (userRepository users) Unfollow(userId, followerId uint64) error {
 
 	return nil
 }
+
+func (userRepository users) Followers(userId uint64) ([]models.User, error) {
+	sql := `SELECT users.id, users.name, users.nick, users.email, users.created_at
+				FROM users 
+				INNER JOIN followers ON  users.id = followers.follower_id
+				WHERE followers.user_id = ?`
+	rows, err := userRepository.db.Query(sql, userId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var followers []models.User
+
+	for rows.Next() {
+		var user models.User
+
+		if err = rows.Scan(
+			&user.Id,
+			&user.Name,
+			&user.Nick,
+			&user.Email,
+			&user.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+
+		followers = append(followers, user)
+	}
+
+	return followers, nil
+}
+
+func (userRepository users) Following(userId uint64) ([]models.User, error) {
+	sql := `SELECT users.id, users.name, users.nick, users.email, users.created_at
+				FROM users 
+				INNER JOIN followers ON  users.id = followers.follower_id
+				WHERE followers.follower_id = ?`
+	rows, err := userRepository.db.Query(sql, userId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var followers []models.User
+
+	for rows.Next() {
+		var user models.User
+
+		if err = rows.Scan(
+			&user.Id,
+			&user.Name,
+			&user.Nick,
+			&user.Email,
+			&user.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+
+		followers = append(followers, user)
+	}
+
+	return followers, nil
+}
