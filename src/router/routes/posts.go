@@ -36,4 +36,10 @@ var postsRoutes = []Route{
 		Function:       controllers.RemovePostById,
 		IsAuthRequired: true,
 	},
+	{
+		Uri:            "/users/{userId}/posts",
+		Method:         http.MethodGet,
+		Function:       controllers.GetPostsByUserId,
+		IsAuthRequired: true,
+	},
 }
