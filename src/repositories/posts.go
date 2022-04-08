@@ -111,3 +111,43 @@ func (repository Posts) GetAllFromUser(userId uint64) ([]models.Posts, error) {
 
 	return posts, nil
 }
+
+func (repository Posts) GetPostAuthorId(postId uint64) (uint64, error) {
+	sql := `SELECT posts.author_id
+				FROM posts
+				WHERE posts.id = ?
+				`
+	row, err := repository.db.Query(sql, postId)
+	if err != nil {
+		return 0, err
+	}
+	defer row.Close()
+
+	var authorId uint64
+
+	if row.Next() {
+		if err = row.Scan(
+			&authorId,
+		); err != nil {
+			return 0, err
+		}
+	}
+
+	return authorId, nil
+}
+
+func (repository Posts) UpdateById(id uint64, post models.Posts) error {
+	sql := "UPDATE posts SET title = ?, content = ? WHERE id = ?"
+
+	statement, err := repository.db.Prepare(sql)
+	if err != nil {
+		return err
+	}
+	defer statement.Close()
+
+	if _, err = statement.Exec(post.Title, post.Content, id); err != nil {
+		return err
+	}
+
+	return nil
+}
