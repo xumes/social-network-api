@@ -80,6 +80,8 @@ func (repository Posts) GetAllFromUser(userId uint64) ([]models.Posts, error) {
 				WHERE
 					users.id = ?
 					OR followers.follower_id = ?
+				ORDER BY
+					posts.id DESC
 				`
 	rows, err := repository.db.Query(sql, userId, userId)
 	if err != nil {
