@@ -151,3 +151,20 @@ func (repository Posts) UpdateById(id uint64, post models.Posts) error {
 
 	return nil
 }
+
+func (repository Posts) RemoveById(id uint64) error {
+	sql := "DELETE FROM posts WHERE id = ?"
+
+	statement, err := repository.db.Prepare(sql)
+	if err != nil {
+		return err
+	}
+	defer statement.Close()
+
+	_, err = statement.Exec(id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
