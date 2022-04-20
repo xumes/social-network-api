@@ -203,3 +203,19 @@ func (repository Posts) GetByUserId(userId uint64) ([]models.Posts, error) {
 
 	return posts, nil
 }
+
+func (repository Posts) Like(postId uint64) error {
+	sql := "UPDATE posts SET likes = likes + 1 WHERE id = ?"
+
+	statement, err := repository.db.Prepare(sql)
+	if err != nil {
+		return err
+	}
+	defer statement.Close()
+
+	if _, err = statement.Exec(postId); err != nil {
+		return err
+	}
+
+	return nil
+}
