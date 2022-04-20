@@ -254,3 +254,27 @@ func LikePost(w http.ResponseWriter, r *http.Request) {
 
 	responses.JSON(w, http.StatusCreated, nil)
 }
+
+func UnlikePost(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	postId, err := strconv.ParseUint(params["postId"], 10, 64)
+	if err != nil {
+		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
+	db, err := database.Connect()
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
+
+	repository := repositories.NewPostRepository(db)
+	if err = repository.Unlike(postId); err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	responses.JSON(w, http.StatusCreated, nil)
+}
